@@ -9,6 +9,8 @@ library(DT)
 library(synthdid)
 library(dplyr)
 library(broom)
+library(EnvStats)
+
 
 # 📁 Données
 prices_data <- read_excel("daily_futures_prices_1920s.xlsx", sheet = "panel7") %>%
@@ -31,7 +33,7 @@ df <- read_excel("Dataset1920_ln.xlsx", sheet = "Sheet4") %>%
   mutate(MONTH = as.Date(MONTH)) %>%
   arrange(INDIVIDU, MONTH)
 
-names(flux_data) <- toupper(names(flux_data))
+names(df) <- toupper(names(df))
 
 # NB : Assure-toi d'avoir déjà chargé le fichier `df` (Dataset1920_ln.xlsx Sheet4)
 library(dplyr)
@@ -527,7 +529,7 @@ output$spread_summary <- renderDT({
   
   
   output$flux_plot <- renderPlot({
-    flux_data %>%
+    df %>%
       group_by(MONTH, CITY) %>%
       summarise(RECEIPTS = mean(RECEIPTS), SHIPMENTS = mean(SHIPMENTS), .groups = "drop") %>%
       pivot_longer(cols = c(RECEIPTS, SHIPMENTS), names_to = "Type", values_to = "Valeur") %>%
@@ -538,7 +540,7 @@ output$spread_summary <- renderDT({
   })
   
   output$flux_stats <- renderTable({
-    flux_data %>%
+    df %>%
       group_by(CITY) %>%
       summarise(Moy_Receipts = mean(RECEIPTS), Moy_Shipments = mean(SHIPMENTS), .groups = "drop")
   })
@@ -602,7 +604,7 @@ output$spread_summary <- renderDT({
   })
   
   output$flux_trend_plot <- renderPlot({
-    flux_data %>%
+    df %>%
       filter(MONTH < as.Date("1926-02-01")) %>%
       mutate(Groupe = ifelse(CITY == "Chicago", "Traitement", "Contrôle")) %>%
       group_by(MONTH, Groupe) %>%
