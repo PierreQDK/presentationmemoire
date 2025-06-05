@@ -10,6 +10,7 @@ library(synthdid)
 library(dplyr)
 library(broom)
 library(EnvStats)
+library(leaflet)     
 
 
 # 📁 Données
@@ -285,6 +286,12 @@ ui <- navbarPage(
                      )
                  )
              ),
+             br(), br(),
+             div(style = "text-align: center;",
+                 h3("🗺️ Localisation des marchés à terme étudiés", style = "margin-bottom: 20px;"),
+                 leafletOutput("midwest_map", width = "100%", height = "500px")
+             ),
+             
              br(), br(),  br(), 
              div(style = "text-align: center; margin-top: 100px;",
                  tags$h2("Auteur : Pierre QUINTIN de KERCADIO"),
@@ -668,6 +675,32 @@ output$spread_summary <- renderDT({
       return("⚠️ Résultat non interprétable : interaction non estimée.")
     }
   })
+  output$midwest_map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      setView(lng = -90, lat = 41.5, zoom = 5) %>%
+      
+      # 🔹 Rectangle sur le Midwest
+      addRectangles(
+        lng1 = -96, lat1 = 36,  # coin sud-ouest
+        lng2 = -83, lat2 = 46,  # coin nord-est
+        fillColor = "transparent",
+        color = "#ff6600",  # couleur de la bordure
+        weight = 2,
+        dashArray = "5,10",
+        opacity = 0.7
+      ) %>%
+      
+      # 📍 Marqueurs des villes
+      addMarkers(lng = -87.6298, lat = 41.8781, popup = "Chicago (Traitement)") %>%
+      addMarkers(lng = -94.5786, lat = 39.0997, popup = "Kansas City") %>%
+      addMarkers(lng = -90.1994, lat = 38.6270, popup = "St. Louis") %>%
+      addMarkers(lng = -93.2650, lat = 44.9778, popup = "Minneapolis") %>%
+      addMarkers(lng = -92.1005, lat = 46.7867, popup = "Duluth") %>%
+      addMarkers(lng = -87.9065, lat = 43.0389, popup = "Milwaukee")
+  })
+  
+  
   
   
   
